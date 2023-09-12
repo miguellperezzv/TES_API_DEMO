@@ -65,3 +65,22 @@ def getAlumno(cod_alu):
     connection.close()
 
     return jsonify(data)
+
+
+@CIE.route('/familia/<string:cod_fam>')
+def getFamilia(cod_fam):
+    engine = sqlalchemy.create_engine(str_conn_novasoft)
+    connection = engine.connect()
+    result = connection.execute(text("SELECT * FROM dbo.cie_familia WHERE cod_fam = '" + cod_fam + "'"))
+    column_names = list(result.keys())
+    row = result.fetchone()
+
+    data = {}
+    if row:
+        for i in range(len(column_names)):
+            data[column_names[i]] = row[i]
+
+    
+    connection.close()
+
+    return jsonify(data)
