@@ -1,7 +1,7 @@
-from config import DevelopmentConfig
+from .config import DevelopmentConfig
 from flask import Flask, session
 #from db import db, ma 
-from CIE.views import CIE, home
+from .CIE.views import CIE, home
 
 
 #ACTIVE_ENDPOINTS = [('/',home), ('/dashboard', dashboard), ('/releases', releases), ('/artists', artists), ('/purchase', purchase), ("/products", products) ]
