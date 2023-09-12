@@ -84,3 +84,9 @@ def getFamilia(cod_fam):
     connection.close()
 
     return jsonify(data)
+
+@home.route('/')
+def index():
+    return jsonify({
+        "Message": "app up and running successfully"
+    })
