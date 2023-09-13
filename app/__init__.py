@@ -10,7 +10,7 @@ import json
 from functools import wraps
 import sys
 from flask_jwt_extended import JWTManager
-from .login.models import User
+
 
 #ACTIVE_ENDPOINTS = [('/',home), ('/dashboard', dashboard), ('/releases', releases), ('/artists', artists), ('/purchase', purchase), ("/products", products) ]
 ACTIVE_ENDPOINTS = [('/',home),('/CIE',CIE), ('/token', token) ,('/swagger', swagger) ]
@@ -38,7 +38,7 @@ def create_app(config=DevelopmentConfig):
 
 
     app.config["JWT_SECRET_KEY"] = "holaMundo" 
-
+    jwt = JWTManager(app)
     #app.config['SERVER_NAME'] = 'localhost:5000'
 
     app.config['SECRET_KEY'] = 'secret'
