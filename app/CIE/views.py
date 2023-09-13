@@ -2,6 +2,7 @@ from flask import Blueprint, Response, flash, session, request, g, render_templa
 import sqlalchemy
 from sqlalchemy.sql import text
 
+
 home = Blueprint('home', __name__)
 CIE = Blueprint('CIE', __name__ , url_prefix = '/CIE')
 
@@ -15,6 +16,8 @@ str_conn_novasoft = 'mssql+pyodbc://admintes:g$M878W6gNfwcY4caA@172.16.3.54/Nova
 @CIE.route("/")
 def index():
     return render_template("home.html") 
+
+
 
 @CIE.route('/log_desprendibles')
 def desprendibles():
@@ -85,8 +88,13 @@ def getFamilia(cod_fam):
 
     return jsonify(data)
 
+#@ldap_auth_required()
 @home.route('/')
 def index():
+    """
+        Verificar que el aplicativo está funcionando
+    :return:
+    """
     return jsonify({
         "Message": "app up and running successfully"
     })
