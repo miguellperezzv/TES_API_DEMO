@@ -47,7 +47,7 @@ def create_app(config=DevelopmentConfig):
     )
     app.config["JWT_SECRET_KEY"] = "holaMundo" 
     jwt = JWTManager(app)
-    app.config['SERVER_NAME'] = 'localhost:5000'
+    #app.config['SERVER_NAME'] = 'localhost:5000'
 
     app.config['SECRET_KEY'] = 'secret'
     app.config['DEBUG'] = True
@@ -102,12 +102,9 @@ def ldap_auth_required():
 
 
 if __name__ == "__main__":
-    #app_flask = create_app()
-    #print(str(app_flask.debug), file=sys.stderr)
-    # Check if the credentials are correct
-    response = ldap_manager.authenticate('username', 'password')
-    print(response.status)
-    #app_flask.run()
+    app_flask = create_app()
+    print(str(app_flask.debug), file=sys.stderr)
+    app_flask.run()
 
 
 
