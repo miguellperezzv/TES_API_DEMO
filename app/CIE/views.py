@@ -2,6 +2,7 @@ from flask import Blueprint, Response, flash, session, request, g, render_templa
 import sqlalchemy
 from sqlalchemy.sql import text
 from flask_jwt_extended import jwt_required
+from ..login.views import  token_required
 
 home = Blueprint('home', __name__)
 CIE = Blueprint('CIE', __name__ , url_prefix = '/CIE')
@@ -18,7 +19,7 @@ def index():
     return render_template("home.html") 
 
 
-@jwt_required(fresh=True)
+
 @CIE.route('/log_desprendibles')
 def desprendibles():
         # Step 2: Create an engine
@@ -41,8 +42,10 @@ def desprendibles():
 
         return jsonify(rs)
 
-@jwt_required(fresh=True)
+#@jwt_required(fresh=True)
+
 @CIE.route('/alumno/<string:cod_alu>')
+@token_required
 def getAlumno(cod_alu):
     # Step 2: Create an engine
     engine = sqlalchemy.create_engine(str_conn_novasoft)
