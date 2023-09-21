@@ -45,7 +45,7 @@ def token_required(f):
         if not token:
             print("No hay token")
             return {
-                "message": "Authentication Token is missing!",
+                "message": "No se encuentra el token o es inválido!",
                 "data": None,
                 "error": "Unauthorized"
             }, 401
@@ -57,7 +57,7 @@ def token_required(f):
             print(current_user)
             if current_user is None:
                 return {
-                "message": "Invalid Authentication token!",
+                "message": "token de autenticación inválido o el usuario no está autorizado",
                 "data": None,
                 "error": "Unauthorized"
             }, 401
@@ -69,7 +69,7 @@ def token_required(f):
         except Exception as e:
             print("EXCEPCION " ,e)
             return {
-                "message": "Something went wrong",
+                "message": "Error de validación de token",
                 "data": None,
                 "error": str(e)
             }, 500
@@ -100,9 +100,11 @@ def validateUserAD(usr):
         s = Server('english.local', get_info=ALL)  # define an unsecure LDAP server, requesting info on DSE and schema
 
         # define the connection
-        c = Connection(s, user='english\\developer', password='G2a0g2a00407')
+        c = Connection(s, user='english\\itenglish', password='Paso4Tercero')
         search_base = 'dc=english,dc=local'  # Cambia esto por la base de búsqueda adecuada
-        search_filter = '(sAMAccountName=' + usr + ')'  # Cambia esto según la estructura de tu directorio LDAP
+        #search_filter = '(&(sAMAccountName=' + usr + ')(|(memberOf=OU=Sistemas,OU=Administración,OU=English School,DC=english,DC=local)(memberOf=OU=Administración,OU=English School,DC=english,DC=local)))'
+        #search_filter = '(&(sAMAccountName=' + usr + ')(memberOf=OU=Sistemas,OU=Administración,OU=English School))'
+        search_filter = '(sAMAccountName=' + usr + ')'
         c.bind()
         c.search(search_base, search_filter, attributes=['cn'])
 

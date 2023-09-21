@@ -75,6 +75,7 @@ def getAlumno(cod_alu):
 
 
 @CIE.route('/familia/<string:cod_fam>')
+@token_required
 def getFamilia(cod_fam):
     engine = sqlalchemy.create_engine(str_conn_novasoft)
     connection = engine.connect()
@@ -91,6 +92,78 @@ def getFamilia(cod_fam):
     connection.close()
 
     return jsonify(data)
+
+@CIE.route('/familia/', methods=["POST"])
+def postFamiliia():
+
+    data = request.json
+    #print(data)
+    rs = obtenerUltimaFamilia
+
+    strSQL = 'insert into cie_familia ('
+    cant = len(data.items())
+    i=0
+    for key,value in data.items():
+        strSQL += key
+        i = i+1
+        if i<cant:
+            strSQL +=","
+
+    strSQL+=') VALUES ('
+    
+    i=0
+    for key,value in data.items():
+        if value is None or (type(value) == str and (value.isspace() or not value)):
+            print("valores vacios", key)
+            strSQL += "''"
+        else:
+            strSQL += "'"+str(value).strip()+"'"
+        i = i+1
+        if i<cant:
+            strSQL +=","
+    strSQL+=')'
+    #print(strSQL)
+    try:
+        engine = sqlalchemy.create_engine(str_conn_novasoft)
+
+    # Step 3: Connect to the database
+        connection = engine.connect()
+
+    # Step 4: Execute SQL queries
+        result = connection.execute(text(strSQL))
+        print(type(result))
+    except  Exception as e:
+        print(e.args)
+        return {"Error ": str(e)}, 500
+    return {},200
+
+
+
+@CIE.route("/familia/ultima_familia", methods=["GET"])
+def obtenerUltimaFamilia():
+    try:
+        result = obtenerUltimaFamilia()
+        print(result)
+        column_names = list(result.keys())
+        row = result.fetchone()
+
+        data = {}
+        if row:
+            for i in range(len(column_names)):
+                data[column_names[i]] = row[i]
+        return data,200
+    except Exception as e:
+        return {"error": str(e)},400
+
+def getUltimaFamilia():
+    engine = sqlalchemy.create_engine(str_conn_novasoft)
+
+    # Step 3: Connect to the database
+    connection = engine.connect()
+
+    # Step 4: Execute SQL queries
+    result = connection.execute(text("SELECT top(1) f.cod_fam as cod_fam FROM CIE_FAMILIA f INNER JOIN CIE_ALUMNOs a on a.cod_fam = f.cod_fam order by a.fec_ing desc"))
+    return result
 
 #@ldap_auth_required()
 @home.route('/')
