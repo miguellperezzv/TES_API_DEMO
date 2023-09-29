@@ -98,8 +98,11 @@ def postFamiliia():
 
     data = request.json
     #print(data)
-    rs = obtenerUltimaFamilia
-
+    rs = obtenerUltimaFamilia()
+    print("rs ", rs[0]["cod_fam"])
+    nueva_familia = rs[0]["cod_fam"]
+    data["cod_fam"] = int(nueva_familia) + 1
+ 
     strSQL = 'insert into cie_familia ('
     cant = len(data.items())
     i=0
@@ -142,7 +145,7 @@ def postFamiliia():
 @CIE.route("/familia/ultima_familia", methods=["GET"])
 def obtenerUltimaFamilia():
     try:
-        result = obtenerUltimaFamilia()
+        result = getUltimaFamilia()
         print(result)
         column_names = list(result.keys())
         row = result.fetchone()
@@ -150,7 +153,7 @@ def obtenerUltimaFamilia():
         data = {}
         if row:
             for i in range(len(column_names)):
-                data[column_names[i]] = row[i]
+               data[column_names[i]] = row[i].strip()
         return data,200
     except Exception as e:
         return {"error": str(e)},400
