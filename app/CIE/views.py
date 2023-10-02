@@ -135,10 +135,11 @@ def postFamiliia():
     # Step 4: Execute SQL queries
         result = connection.execute(text(strSQL))
         print(type(result))
+        connection.commit()
     except  Exception as e:
         print(e.args)
         return {"Error ": str(e)}, 500
-    return {},200
+    return {"resultado": "Se registró exitosamente la familia "+str(data["cod_fam"])},200
 
 
 
@@ -157,6 +158,84 @@ def obtenerUltimaFamilia():
         return data,200
     except Exception as e:
         return {"error": str(e)},400
+    
+@CIE.route("/alumno/ultimo_alumno/<string:vigencia>", methods=["GET"])
+def obtenerUltimoAlumno(vigencia):
+    try:
+        result = getUltimoEstudiante(vigencia)
+        column_names = list(result.keys())
+        row = result.fetchone()
+        
+        data = {}
+        if row:
+            for i in range(len(column_names)):
+                if row[i]:
+                    data[column_names[i]] = row[i].strip()
+                else:
+                   data[column_names[i]] = vigencia+"000"
+            print(data, "data")
+        
+            
+        return data,200
+    except Exception as e:
+        return {"error": str(e)},400
+    
+@CIE.route("/alumno", methods =["POST"])
+def postEstudiante():
+    data = request.json
+    #print(data)
+    ultimo_codigo = obtenerUltimoAlumno(data["vigencia"])[0]["ID"]
+    print("utlimo codigo ", ultimo_codigo)
+    
+    data["cod_alu"] = int(ultimo_codigo) + 1
+    del data["vigencia"]
+
+    data["fec_ing"] = "CONVERT(DATETIME,'"+data["fec_ing"]+"' ,103)" if data["fec_ing"] else data["fec_ing"]
+    data["fec_nac"] = "CONVERT(DATETIME,'"+data["fec_nac"]+"' ,103)" if data["fec_nac"] else data["fec_nac"]
+    data["fec_ret"] = "CONVERT(DATETIME,'"+data["fec_ret"]+"' ,103)" if data["fec_ret"] else data["fec_ret"]
+    data["fec_mat"] = "CONVERT(DATETIME,'"+data["fec_mat"]+"' ,103)" if data["fec_mat"] else data["fec_mat"]
+
+    strSQL = 'insert into cie_alumnos ('
+    cant = len(data.items())
+    i=0
+    for key,value in data.items():
+        strSQL += key
+        i = i+1
+        if i<cant:
+            strSQL +=","
+
+    strSQL+=') VALUES ('
+    
+    i=0
+    for key,value in data.items():
+        if value is None or (type(value) == str and (value.isspace() or not value)):
+            print("valores vacios", key)
+            strSQL += "''"
+        else:
+            if "CONVERT" in str(value):
+                strSQL += ""+str(value).strip()+""
+            else:
+                strSQL += "'"+str(value).strip()+"'"
+        i = i+1
+        if i<cant:
+            strSQL +=","
+    strSQL+=')'
+    #print(strSQL)
+    try:
+        engine = sqlalchemy.create_engine(str_conn_novasoft)
+
+    # Step 3: Connect to the database
+        connection = engine.connect()
+
+    # Step 4: Execute SQL queries
+        result = connection.execute(text(strSQL))
+        print(type(result))
+        connection.commit()
+    except  Exception as e:
+        print(e.args)
+        return {"Error ": str(e)}, 500
+    return {"resultado": "Se registró exitosamente el alumno "+ str(data["cod_alu"])},200
+
 
 def getUltimaFamilia():
     engine = sqlalchemy.create_engine(str_conn_novasoft)
@@ -165,7 +244,17 @@ def getUltimaFamilia():
     connection = engine.connect()
 
     # Step 4: Execute SQL queries
-    result = connection.execute(text("SELECT top(1) f.cod_fam as cod_fam FROM CIE_FAMILIA f INNER JOIN CIE_ALUMNOs a on a.cod_fam = f.cod_fam order by a.fec_ing desc"))
+    result = connection.execute(text("SELECT top(1) f.cod_fam as cod_fam FROM CIE_FAMILIA f INNER JOIN CIE_ALUMNOs a on a.cod_fam = f.cod_fam where a.estado =1 order by f.cod_fam desc"))
+    return result
+
+def getUltimoEstudiante(vigencia):
+    engine = sqlalchemy.create_engine(str_conn_novasoft)
+
+    # Step 3: Connect to the database
+    connection = engine.connect()
+
+    # Step 4: Execute SQL queries
+    result = connection.execute(text("select max(cod_alu) as ID  from cie_alumnos where cod_alu like '" +vigencia+ "%'"))
     return result
 
 #@ldap_auth_required()
@@ -176,5 +265,5 @@ def index():
     :return:
     """
     return jsonify({
-        "Message": "app up and running successfully"
+        "Message": "Microservicio de The English School"
     })
